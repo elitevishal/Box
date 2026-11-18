@@ -1,7 +1,17 @@
 {
-  "version": 1,
-  "url": "https://t.me/elitebroooo",
+  "version": 0,
+  "url": "https://t.me/elitevishal",
   "title": "Update Required",
-  "msg": "bhai sahab bahut editing ho gai ab thoda update bhi kr lo apna Cutcut 😁.",
-  "cancel": True
+  "msg": "New version available",
+  "cancel": false,
+
+  "notice": {
+    "enabled": true,
+    "title": "CapCut Pro",
+    "msg": "Sab features unlocked. Download karo!",
+    "image": "https://i.ibb.co/KcxQmVtb/file-000000005c3481f48f749af655352be7.png",
+    "btnText": "DOWNLOAD",
+    "btnUrl": "https://t.me/elitevishal",
+    "closeText": "LATER"
+  }
 }
