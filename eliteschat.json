@@ -6,7 +6,7 @@
   "cancel": true,
 
   "notice": {
-    "enabled": true,
+    "enabled": false,
     "title": "CapCut Pro",
     "msg": "Sab features unlocked. Download karo!",
     "image": "https://i.ibb.co/KcxQmVtb/file-000000005c3481f48f749af655352be7.png",
