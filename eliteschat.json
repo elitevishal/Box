@@ -1,12 +1,12 @@
 {
-  "version": 1,
+  "version": 0,
   "url": "https://t.me/elitevishal",
   "title": "Update Required",
   "msg": "New version available",
   "cancel": true,
 
   "notice": {
-    "enabled": false,
+    "enabled": true,
     "title": "CapCut Pro",
     "msg": "Sab features unlocked. Download karo!",
     "image": "https://i.ibb.co/KcxQmVtb/file-000000005c3481f48f749af655352be7.png",
