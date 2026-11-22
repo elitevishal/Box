@@ -1,6 +1,17 @@
 {
   "version": 0,
-  "url": "https://youtu.be/PI2S0DkoZw0?si=9lIiu6wU2iQKkSor",
-  "title": "Update Available",
-  "msg": "bhai sahab bahut dekh li movie ab update bhi kr lo isko 😁."
+  "url": "https://t.me/elitevishal",
+  "title": "Update Required",
+  "msg": "New version available",
+  "cancel": true,
+
+  "notice": {
+    "enabled": false,
+    "title": "CapCut Pro",
+    "msg": "Sab features unlocked. Download karo!",
+    "image": "https://i.ibb.co/KcxQmVtb/file-000000005c3481f48f749af655352be7.png",
+    "btnText": "SUBSCRIBE",
+    "btnUrl": "https://t.me/elitevishal",
+    "closeText": "LATER"
+  }
 }
