@@ -3,7 +3,7 @@
   "url": "https://t.me/elitevishal",
   "title": "Update Required",
   "msg": "New version available",
-  "cancel": false,
+  "cancel": true,
 
   "notice": {
     "enabled": false,
