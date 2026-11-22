@@ -1,9 +1,9 @@
 {
-  "version": 0,
+  "version": 1,
   "url": "https://t.me/elitevishal",
   "title": "Update Required",
   "msg": "New version available",
-  "cancel": true,
+  "cancel": false,
 
   "notice": {
     "enabled": false,
